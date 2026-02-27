@@ -12,8 +12,15 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build Docker image
-        run: docker build -t demo .
+        run: docker build -t demo:${{ github.run_number }} .
 
-
-      - name: Run Docker container
-        run: docker run demo
+      - name: Run test
+        run: |
+          output=$(docker run -e VERSION=${{ github.run_number }} demo:${{ github.run_number }})
+          echo $output
+          if [[ $output == *"Hello"* ]]; then
+            echo "Test passed"
+          else
+            echo "Test failed"
+            exit 1
+          fi
